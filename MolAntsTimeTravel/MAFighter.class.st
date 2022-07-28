@@ -35,7 +35,14 @@ MAFighter >> componentInitialize [
 	self forServices: TMASimulationServices useProvider: #default.
 	
 	roleName := #fighter.
-
+	
+	"--------------------------Time Travel--------------------------"
+	self property: #roleName whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+	
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
 		self getTimeTravelServicesProvider isRestoring ifFalse: [

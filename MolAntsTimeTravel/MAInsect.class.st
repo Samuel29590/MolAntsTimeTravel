@@ -10,11 +10,11 @@ Variables :
 Class {
 	#name : #MAInsect,
 	#superclass : #Object,
-	#traits : 'MolComponentImpl + TMAInsectsType + TMASimulationToGlobalEvents + TimeTravelEvents',
-	#classTraits : 'MolComponentImpl classTrait + TMAInsectsType classTrait + TMASimulationToGlobalEvents classTrait + TimeTravelEvents classTrait',
+	#traits : 'MolComponentImpl + TMAInsectsType + TMASimulationToGlobalEvents + TimeTravelEvents + TObservable',
+	#classTraits : 'MolComponentImpl classTrait + TMAInsectsType classTrait + TMASimulationToGlobalEvents classTrait + TimeTravelEvents classTrait + TObservable classTrait',
 	#instVars : [
-		'position',
-		'ageInMs'
+		'#position => ObservableSlot',
+		'#ageInMs => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -52,7 +52,18 @@ MAInsect >> componentInitialize [
 	
 	ageInMs := 0.
 	position := ((Random new nextIntegerBetween: 1 and: MASimulationManager simulationWidth) @ (Random new nextIntegerBetween: 1 and: MASimulationManager simulationHeight)).
-
+	
+	"--------------------------Time Travel--------------------------"
+	self property: #ageInMs whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #position whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+	
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
 		self getTimeTravelServicesProvider isRestoring ifFalse: [
@@ -167,6 +178,13 @@ MAInsect >> getTimeTravelServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #initialization }
+MAInsect >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #'life cycle' }

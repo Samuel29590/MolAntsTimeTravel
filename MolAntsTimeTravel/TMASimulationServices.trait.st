@@ -10,10 +10,10 @@ Variables :
 Trait {
 	#name : #TMASimulationServices,
 	#instVars : [
-		'isRunning'
+		'#isRunning => ObservableSlot'
 	],
-	#traits : 'MolComponentServices',
-	#classTraits : 'MolComponentServices classTrait',
+	#traits : 'MolComponentServices + TObservable',
+	#classTraits : 'MolComponentServices classTrait + TObservable classTrait',
 	#category : #MolAntsTimeTravel
 }
 
@@ -53,6 +53,13 @@ TMASimulationServices >> getStep [
 TMASimulationServices >> getStorage [
 
 	
+]
+
+{ #category : #initialization }
+TMASimulationServices >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #services }

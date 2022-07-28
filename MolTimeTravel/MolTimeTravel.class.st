@@ -497,7 +497,7 @@ MolTimeTravel >> playBackward [
 			timeTravelLoop := [ 
 			                  [ currentStep > 1 ] whileTrue: [ 
 				                  self restoreOneStepBefore.
-				                  (Delay forMilliseconds: 10) wait ].
+				                  (Delay forMilliseconds: 1) wait ].
 			                  isPlayingBackward := false.
 			                  timeTravelLoop ifNil: [ ^ self ].
 			                  timeTravelLoop terminate.
@@ -523,9 +523,8 @@ MolTimeTravel >> replay [
 			isReplaying := true.
 			timeTravelLoop := [ 
 			                  [ currentStep < lastStep ] whileTrue: [ 
-				                  self restoreOneStepAfter .
-				                  (Delay forMilliseconds: 10)
-					                  wait ].
+				                  self restoreOneStepAfter.
+				                  (Delay forMilliseconds: 1) wait ].
 			                  isReplaying := false.
 			                  timeTravelLoop ifNil: [ ^ self ].
 			                  timeTravelLoop terminate.
@@ -589,7 +588,10 @@ MolTimeTravel >> restoreOneStepBefore [
 { #category : #services }
 MolTimeTravel >> save: aComponentMemento [
 
-	(history at: currentStep) save: aComponentMemento.
+	((history at: currentStep) stepAlreadyContains: aComponentMemento) 
+		ifTrue: [ self nextStep ].
+
+	(history at: currentStep) save: aComponentMemento
 ]
 
 { #category : #services }
@@ -613,7 +615,7 @@ MolTimeTravel >> saveTheApplication [
 
 	self getTimeTravelEventsNotifier saveForTimeTravel.
 
-	self nextStep.
+	self nextStep
 ]
 
 { #category : #'life cycle' }

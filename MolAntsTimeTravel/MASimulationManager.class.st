@@ -28,16 +28,16 @@ Finally this implementation provides *start / pause / play / stop* methods on th
 Class {
 	#name : #MASimulationManager,
 	#superclass : #MolAbstractComponentImpl,
-	#traits : 'TMASimulationManagerType + TMASimulationServices + TMARoleEvents + TMAInsectEvents + TMAStageEvents + TimeTravelEvents',
-	#classTraits : 'TMASimulationManagerType classTrait + TMASimulationServices classTrait + TMARoleEvents classTrait + TMAInsectEvents classTrait + TMAStageEvents classTrait + TimeTravelEvents classTrait',
+	#traits : 'TMASimulationManagerType + TMASimulationServices + TMARoleEvents + TMAInsectEvents + TMAStageEvents + TimeTravelEvents + TObservable',
+	#classTraits : 'TMASimulationManagerType classTrait + TMASimulationServices classTrait + TMARoleEvents classTrait + TMAInsectEvents classTrait + TMAStageEvents classTrait + TimeTravelEvents classTrait + TObservable classTrait',
 	#instVars : [
-		'simulationThread',
-		'step',
-		'ants',
-		'nbAnts',
-		'insects',
-		'storage',
-		'feedingPoints'
+		'#simulationThread',
+		'#step => ObservableSlot',
+		'#ants => ObservableSlot',
+		'#nbAnts => ObservableSlot',
+		'#insects => ObservableSlot',
+		'#storage => ObservableSlot',
+		'#feedingPoints => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -409,6 +409,13 @@ MASimulationManager >> getTimeTravelServicesProvider [
 	^servicesProvider
 ]
 
+{ #category : #initialization }
+MASimulationManager >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
+]
+
 { #category : #events }
 MASimulationManager >> insectDelivered [
 
@@ -538,6 +545,40 @@ MASimulationManager >> start [
 	insects := Dictionary new.
 	feedingPoints := Dictionary new.
 
+
+
+
+	"--------------------------Time Travel--------------------------"
+	self property: #step whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+		self property: #ants whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+		self property: #nbAnts whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+		self property: #insects whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+		self property: #storage whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+		self property: #feedingPoints whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+			self property: #isRunning whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
 		self getTimeTravelServicesProvider isRestoring ifFalse: [ 
@@ -581,9 +622,6 @@ MASimulationManager >> startSimulationLoop [
 
 					                    self getTMASimulationToGlobalEventsNotifier 
 						                    simulationStepSent: step.
-											
-					                    self getTimeTravelServicesProvider
-						                    saveTheApplication.
 
 					                    (Delay forMilliseconds:
 						                     self class simulationStepDurationInMs) wait ] ] ] ]

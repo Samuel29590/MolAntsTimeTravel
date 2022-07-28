@@ -8,10 +8,10 @@ Variables :
 Trait {
 	#name : #TMARoleServices,
 	#instVars : [
-		'roleName'
+		'#roleName => ObservableSlot'
 	],
-	#traits : 'MolComponentServices',
-	#classTraits : 'MolComponentServices classTrait',
+	#traits : 'MolComponentServices + TObservable',
+	#classTraits : 'MolComponentServices classTrait + TObservable classTrait',
 	#category : #MolAntsTimeTravel
 }
 
@@ -21,6 +21,13 @@ TMARoleServices >> doSimulationStepFor: anAnt [
 
 { #category : #accessing }
 TMARoleServices >> getRoleName [
+]
+
+{ #category : #initialization }
+TMARoleServices >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #role }

@@ -10,11 +10,11 @@ Variables :
 Trait {
 	#name : #TMAStageServices,
 	#instVars : [
-		'stageName',
-		'role'
+		'#stageName => ObservableSlot',
+		'#role => ObservableSlot'
 	],
-	#traits : 'MolComponentServices',
-	#classTraits : 'MolComponentServices classTrait',
+	#traits : 'MolComponentServices + TObservable',
+	#classTraits : 'MolComponentServices classTrait + TObservable classTrait',
 	#category : #MolAntsTimeTravel
 }
 
@@ -35,6 +35,13 @@ TMAStageServices >> getRoleName [
 { #category : #role }
 TMAStageServices >> getStageName [
 	^ stageName ifNil: [ stageName := #egg ]
+]
+
+{ #category : #initialization }
+TMAStageServices >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #testing }

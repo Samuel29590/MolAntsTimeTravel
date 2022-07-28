@@ -10,11 +10,11 @@ Variables :
 Class {
 	#name : #MAStage,
 	#superclass : #Object,
-	#traits : 'MolComponentImpl + TMAStageType + TMAStageServices + TimeTravelEvents',
-	#classTraits : 'MolComponentImpl classTrait + TMAStageType classTrait + TMAStageServices classTrait + TimeTravelEvents classTrait',
+	#traits : 'MolComponentImpl + TMAStageType + TMAStageServices + TimeTravelEvents + TObservable',
+	#classTraits : 'MolComponentImpl classTrait + TMAStageType classTrait + TMAStageServices classTrait + TimeTravelEvents classTrait + TObservable classTrait',
 	#instVars : [
-		'eggStateDurationInMs',
-		'adultStateDurationInMs'
+		'#eggStateDurationInMs => ObservableSlot',
+		'#adultStateDurationInMs => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -54,6 +54,25 @@ MAStage >> componentInitialize [
 	eggStateDurationInMs := (Random new next * 5000) rounded + 1000.
 	adultStateDurationInMs := (Random new next * 10000) rounded + 10000.
 	self initializeRole.
+
+	"--------------------------Time Travel--------------------------"
+	self property: #eggStateDurationInMs whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #adultStateDurationInMs whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #stageName whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #role whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
 
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ "---------------------------------------------------------------"
@@ -197,6 +216,13 @@ MAStage >> getTimeTravelServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #initialization }
+MAStage >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #initialization }

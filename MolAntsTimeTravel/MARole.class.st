@@ -4,8 +4,8 @@ The actual implementation of the TMARoleeType: MARole, describe the role of one 
 Class {
 	#name : #MARole,
 	#superclass : #Object,
-	#traits : 'MolComponentImpl + TMARoleType + TMARoleServices + TimeTravelEvents',
-	#classTraits : 'MolComponentImpl classTrait + TMARoleType classTrait + TMARoleServices classTrait + TimeTravelEvents classTrait',
+	#traits : 'MolComponentImpl + TMARoleType + TMARoleServices + TimeTravelEvents + TObservable',
+	#classTraits : 'MolComponentImpl classTrait + TMARoleType classTrait + TMARoleServices classTrait + TimeTravelEvents classTrait + TObservable classTrait',
 	#category : #MolAntsTimeTravel
 }
 
@@ -54,6 +54,13 @@ MARole >> getTimeTravelServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #initialization }
+MARole >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #role }

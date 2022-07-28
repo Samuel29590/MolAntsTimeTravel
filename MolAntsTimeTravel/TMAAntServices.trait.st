@@ -4,10 +4,10 @@ This service is provided by the ant implementation isn't used by another compone
 Trait {
 	#name : #TMAAntServices,
 	#instVars : [
-		'stage'
+		'#stage => ObservableSlot'
 	],
-	#traits : 'MolComponentServices',
-	#classTraits : 'MolComponentServices classTrait',
+	#traits : 'MolComponentServices + TObservable',
+	#classTraits : 'MolComponentServices classTrait + TObservable classTrait',
 	#category : #MolAntsTimeTravel
 }
 
@@ -29,4 +29,11 @@ TMAAntServices >> getStage [
 TMAAntServices >> getStageName [
 
 	
+]
+
+{ #category : #initialization }
+TMAAntServices >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]

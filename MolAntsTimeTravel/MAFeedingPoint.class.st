@@ -10,11 +10,11 @@ Variables :
 Class {
 	#name : #MAFeedingPoint,
 	#superclass : #Object,
-	#traits : 'MolComponentImpl + TMAFeedingPointType + TMAFeedingPointServices + TimeTravelEvents + TMASimulationToGlobalEvents',
-	#classTraits : 'MolComponentImpl classTrait + TMAFeedingPointType classTrait + TMAFeedingPointServices classTrait + TimeTravelEvents classTrait + TMASimulationToGlobalEvents classTrait',
+	#traits : 'MolComponentImpl + TMAFeedingPointType + TMAFeedingPointServices + TimeTravelEvents + TMASimulationToGlobalEvents + TObservable',
+	#classTraits : 'MolComponentImpl classTrait + TMAFeedingPointType classTrait + TMAFeedingPointServices classTrait + TimeTravelEvents classTrait + TMASimulationToGlobalEvents classTrait + TObservable classTrait',
 	#instVars : [
-		'position',
-		'capacity'
+		'#position => ObservableSlot',
+		'#capacity => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -34,18 +34,16 @@ MAFeedingPoint >> componentActivate [
 MAFeedingPoint >> componentInitialize [
 
 	"--------------------------Time Travel--------------------------"
-	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
-		"Connection to the TimeTravel service."
+	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ "Connection to the TimeTravel service."
 		self forServices: TimeTravelServices useProvider: #default.
 		"Subscription to the Time Travel event"
 		self getTimeTravelEventsSubscriber subscribe: self.
-		self getTimeTravelServicesProvider isRestoring ifFalse: [
-			"Component notifies its creation" 
+		self getTimeTravelServicesProvider isRestoring ifFalse: [ "Component notifies its creation" 
 			self getTimeTravelServicesProvider creationOf: self ] ].
 	"---------------------------------------------------------------"
-	
+
 	"Initialization of the MAFeedingPoint component."
-	
+
 	self forServices: TMASimulationServices useProvider: #default.
 
 	capacity := 10.
@@ -55,12 +53,22 @@ MAFeedingPoint >> componentInitialize [
 	            @ (Random new
 			             nextIntegerBetween: 1
 			             and: MASimulationManager simulationHeight).
-
+			
+	"--------------------------Time Travel--------------------------"
+	self property: #capacity whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #position whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+	
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
-		self getTimeTravelServicesProvider isRestoring ifFalse: [
-			"Component saves its state."
-			self saveForTimeTravel ] ].
+		self getTimeTravelServicesProvider isRestoring ifFalse: [ "Component saves its state." 
+			self saveForTimeTravel ] ]
 	"---------------------------------------------------------------"
 ]
 
@@ -160,6 +168,13 @@ MAFeedingPoint >> getTimeTravelServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #initialization }
+MAFeedingPoint >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #events }

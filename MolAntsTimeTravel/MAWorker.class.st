@@ -11,8 +11,8 @@ Class {
 	#name : #MAWorker,
 	#superclass : #MARole,
 	#instVars : [
-		'phase',
-		'oldPositions'
+		'#phase => ObservableSlot',
+		'#oldPositions => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -105,7 +105,22 @@ MAWorker >> componentInitialize [
 	roleName := #worker.
 	phase := #explore.
 	oldPositions := OrderedCollection new.
-
+	
+	"--------------------------Time Travel--------------------------"
+	self property: #roleName whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #phase whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].	
+	self property: #oldPositions whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+	
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
 		self getTimeTravelServicesProvider isRestoring ifFalse: [
@@ -321,6 +336,13 @@ MAWorker >> getPheromonesOfReturnAround: anAnt [
 	oldPositions do:[ :each | 
 	pheromonesVisibles remove: each ifAbsent: [  ].].
 	^ pheromonesVisibles
+]
+
+{ #category : #initialization }
+MAWorker >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #position }

@@ -14,12 +14,12 @@ Variables :
 Class {
 	#name : #MAPheromones,
 	#superclass : #Object,
-	#traits : 'MolComponentImpl + TMAPheromonesType + TMAPheromoneServices + TMASimulationToGlobalEvents + TimeTravelEvents',
-	#classTraits : 'MolComponentImpl classTrait + TMAPheromonesType classTrait + TMAPheromoneServices classTrait + TMASimulationToGlobalEvents classTrait + TimeTravelEvents classTrait',
+	#traits : 'MolComponentImpl + TMAPheromonesType + TMAPheromoneServices + TMASimulationToGlobalEvents + TimeTravelEvents + TObservable',
+	#classTraits : 'MolComponentImpl classTrait + TMAPheromonesType classTrait + TMAPheromoneServices classTrait + TMASimulationToGlobalEvents classTrait + TimeTravelEvents classTrait + TObservable classTrait',
 	#instVars : [
-		'maxIntensity',
-		'pheromonesDict',
-		'pheromonesReturnDict'
+		'#maxIntensity => ObservableSlot',
+		'#pheromonesDict => ObservableSlot',
+		'#pheromonesReturnDict => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -64,7 +64,22 @@ MAPheromones >> componentInitialize [
 	maxIntensity := 100.
 	pheromonesDict := Dictionary new.
 	pheromonesReturnDict := Dictionary new.
-
+	
+	"--------------------------Time Travel--------------------------"
+	self property: #maxIntensity whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #pheromonesDict whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].	
+	self property: #pheromonesReturnDict whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+	
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
 		self getTimeTravelServicesProvider isRestoring ifFalse: [
@@ -186,6 +201,13 @@ MAPheromones >> getTimeTravelServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #initialization }
+MAPheromones >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #events }

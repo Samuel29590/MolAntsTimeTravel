@@ -10,11 +10,11 @@ Variables :
 Class {
 	#name : #MAAnt,
 	#superclass : #Object,
-	#traits : 'MolComponentImpl + TMAAntsType + TMAAntServices + TMASimulationToGlobalEvents + TimeTravelEvents',
-	#classTraits : 'MolComponentImpl classTrait + TMAAntsType classTrait + TMAAntServices classTrait + TMASimulationToGlobalEvents classTrait + TimeTravelEvents classTrait',
+	#traits : 'MolComponentImpl + TMAAntsType + TMAAntServices + TMASimulationToGlobalEvents + TimeTravelEvents + TObservable',
+	#classTraits : 'MolComponentImpl classTrait + TMAAntsType classTrait + TMAAntServices classTrait + TMASimulationToGlobalEvents classTrait + TimeTravelEvents classTrait + TObservable classTrait',
 	#instVars : [
-		'position',
-		'ageInMs'
+		'#position => ObservableSlot',
+		'#ageInMs => ObservableSlot'
 	],
 	#category : #MolAntsTimeTravel
 }
@@ -57,7 +57,22 @@ MAAnt >> componentInitialize [
 	self initializeStage.
 	ageInMs := 0.
 	position := MASimulationManager simulationAntHillPosition.
-
+	
+	"--------------------------Time Travel--------------------------"
+	self property: #ageInMs whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #position whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	self property: #stage whenChangedDo: [ 
+		(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+			self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+				self saveForTimeTravel ] ] ].
+	"---------------------------------------------------------------"
+	
 	"--------------------------Time Travel--------------------------"
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
 		self getTimeTravelServicesProvider isRestoring ifFalse: [
@@ -232,6 +247,13 @@ MAAnt >> getTimeTravelServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #initialization }
+MAAnt >> initialize [
+	
+	self class initializeSlots: self.
+	super initialize.
 ]
 
 { #category : #stage }

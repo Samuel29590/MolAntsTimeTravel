@@ -61,3 +61,17 @@ MolComponentStep >> saveEvent: aComponentMemento [
 
 	events add: aComponentMemento
 ]
+
+{ #category : #accessing }
+MolComponentStep >> stepAlreadyContains: aComponentMemento [
+
+	| class name |
+	class := aComponentMemento componentReference componentClass.
+	name := aComponentMemento componentReference componentName.
+
+	mementos do: [ :memento | 
+		name = memento componentReference componentName ifTrue: [ 
+			class = memento componentReference componentClass ifTrue: [ ^ true.  ] ] ].
+
+	^ false
+]
