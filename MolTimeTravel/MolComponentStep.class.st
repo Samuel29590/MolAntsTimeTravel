@@ -33,7 +33,7 @@ MolComponentStep >> initialize [
 { #category : #initialization }
 MolComponentStep >> isANewStep [
 
-	(mementos size > 0)|(creationsAndDeletions size > 0) ifTrue: [ ^ false ].
+	(mementos size > 0)|(creationsAndDeletions size > 0)|(events size > 0) ifTrue: [ ^ false ].
 	
 	^ true.
 ]
@@ -60,4 +60,18 @@ MolComponentStep >> saveCreationOrDeletionOf: aComponentMemento [
 MolComponentStep >> saveEvent: aComponentMemento [
 
 	events add: aComponentMemento
+]
+
+{ #category : #initialization }
+MolComponentStep >> stepAlreadyContains: aComponentMemento [
+
+	| class name |
+	class := aComponentMemento componentReference componentClass.
+	name := aComponentMemento componentReference componentName.
+
+	mementos do: [ :memento | 
+		name = memento componentReference componentName ifTrue: [ 
+			class = memento componentReference componentClass ifTrue: [ ^ true.  ] ] ].
+
+	^ false
 ]

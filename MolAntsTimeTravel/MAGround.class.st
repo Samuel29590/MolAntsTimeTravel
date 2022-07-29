@@ -76,7 +76,6 @@ MAGround >> componentActivate [
 MAGround >> componentInitialize [
 
 	"--------------------------Time Travel--------------------------"
-
 	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ "Connection to the TimeTravel service."
 		self forServices: TimeTravelServices useProvider: #default.
 		"Subscription to the Time Travel event"
@@ -99,9 +98,10 @@ MAGround >> componentInitialize [
 	self startViewLoop.
 
 	"--------------------------Time Travel--------------------------"
-	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ "---------------------------------------------------------------"
+	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [
 		self getTimeTravelServicesProvider isRestoring ifFalse: [ "Component saves its state." 
 			self saveForTimeTravel ] ]
+	"---------------------------------------------------------------"
 ]
 
 { #category : #'life cycle' }

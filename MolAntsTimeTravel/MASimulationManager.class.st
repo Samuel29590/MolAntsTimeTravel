@@ -454,7 +454,20 @@ MASimulationManager >> positionChangedFor: anInsect oldPos: aPoint newPos: anoth
 			collection := OrderedCollection new.
 			collection add: anInsect.
 			insects add: anotherPoint -> collection ]
-		ifTrue: [ (insects at: anotherPoint) addLast: anInsect ]
+		ifTrue: [ (insects at: anotherPoint) addLast: anInsect ].
+		
+	
+	"--------------------------Time Travel--------------------------"
+	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+		self getTimeTravelServicesProvider isRestoring ifFalse: [ 
+			self getTimeTravelServicesProvider
+				saveEvent: #positionChangedFor:oldPos:newPos:
+				performBy: self
+				withParameters: { 
+						anInsect.
+						aPoint.
+						anotherPoint } ] ]
+	"---------------------------------------------------------------"
 ]
 
 { #category : #events }
